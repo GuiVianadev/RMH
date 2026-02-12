@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: "bitnami/postgresql:latest"
+    container_name: RMH_postgres
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: rmh_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - uploads_data:/app/uploads
