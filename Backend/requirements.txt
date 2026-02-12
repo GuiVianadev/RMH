@@ -5,3 +5,4 @@ psycopg2-binary==2.9.9
 python-multipart==0.0.22
 python-dotenv==1.0.1
 alembic==1.18.4
+cloudinary==1.44.0
