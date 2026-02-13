@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Documentos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>📁 Gerenciador de Documentos</h1>
+            <p>Upload, visualize e comente documentos</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2>📤 Novo Documento</h2>
+            <form id="uploadForm" class="upload-form">
+                <div class="form-group">
+                    <label for="title">Título *</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        required 
+                        maxlength="255"
+                        placeholder="Digite o título do documento"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="3"
+                        maxlength="1000"
+                        placeholder="Descrição opcional do documento"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="file">Arquivo (PDF, PNG, JPG - máx 10MB) *</label>
+                    <input 
+                        type="file" 
+                        id="file" 
+                        name="file" 
+                        required 
+                        accept=".pdf,.png,.jpg,.jpeg"
+                    >
+                    <small class="file-info" id="fileInfo"></small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="uploadBtn">
+                    <span class="btn-text">Fazer Upload</span>
+                    <span class="btn-loader" style="display: none;">Enviando...</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Documents List -->
+        <section class="documents-section">
+            <div class="section-header">
+                <h2>📄 Documentos</h2>
+                <div class="filters">
+                    <input 
+                        type="search" 
+                        id="searchInput" 
+                        placeholder="Buscar por título..."
+                        class="search-input"
+                    >
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Carregando documentos...</p>
+            </div>
+
+            <!-- Documents Grid -->
+            <div id="documentsList" class="documents-grid"></div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="pagination"></div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>📭 Nenhum documento encontrado</p>
+                <small>Faça upload do primeiro documento acima</small>
+            </div>
+        </section>
+
+        <!-- Document Details Modal -->
+        <div id="documentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle"></h2>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="document-info">
+                        <p><strong>Tipo:</strong> <span id="modalType"></span></p>
+                        <p><strong>Data:</strong> <span id="modalDate"></span></p>
+                        <p id="modalDescriptionContainer" style="display: none;">
+                            <strong>Descrição:</strong><br>
+                            <span id="modalDescription"></span>
+                        </p>
+                    </div>
+
+                    <div class="document-actions">
+                        <button class="btn btn-secondary" id="viewBtn">👁️ Visualizar</button>
+                        <button class="btn btn-secondary" id="downloadBtn">⬇️ Download</button>
+                        <button class="btn btn-danger" id="deleteBtn">🗑️ Deletar</button>
+                    </div>
+
+                    <hr>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3>💬 Comentários (<span id="commentsCount">0</span>)</h3>
+
+                        <!-- Add Comment Form -->
+                        <form id="commentForm" class="comment-form">
+                            <textarea 
+                                id="commentContent" 
+                                placeholder="Escreva um comentário..."
+                                rows="3"
+                                maxlength="5000"
+                                required
+                            ></textarea>
+                            <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+                        </form>
+
+                        <!-- Comments List -->
+                        <div id="commentsList" class="comments-list"></div>
+                        
+                        <!-- Comments Empty State -->
+                        <div id="commentsEmpty" class="empty-state" style="display: none;">
+                            <small>Seja o primeiro a comentar!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast"></div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
