@@ -5,6 +5,7 @@ from database import get_db
 from documents.schema.dtos import DocumentResponseSchema, DocumentListResponseSchema, DocumentCreateSchema
 from documents.services import DocumentService
 from uuid import UUID
+from cloudinary.utils import cloudinary_url
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 
@@ -75,18 +76,18 @@ def get_document(
     return document
 
 @router.get("/{document_id}/view")
-def view_document(
-    document_id: UUID,
-    db: Session = Depends(get_db),
-):
-    """
-    Redireciona para a URL do Cloudinary para visualizar o arquivo no navegador
-    """
+def view_document(document_id: UUID, db: Session = Depends(get_db)):
     document = DocumentService.get_document(db, document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Documento não encontrado")
-    
-    return RedirectResponse(url=document.file_path)
+
+    url, _ = cloudinary_url(
+        document.cloudinary_id,
+        resource_type="image",
+        type="upload",   
+    )
+
+    return RedirectResponse(url=url)
 
 @router.get("/{document_id}/download")
 def download_document(
@@ -103,3 +104,20 @@ def download_document(
     download_url = document.file_path.replace("/upload/", "/upload/fl_attachment/")
     
     return RedirectResponse(url=download_url)
+
+@router.delete("/{document_id}", status_code=204)
+def delete_document(
+    document_id: UUID,
+    db: Session = Depends(get_db),
+):
+    """
+    Deletar um documento
+    
+    - **document_id**: ID do documento a ser deletado
+    
+    Remove o documento do banco de dados e do Cloudinary.
+    Todos os comentários associados são deletados automaticamente (CASCADE).
+    """
+    success = DocumentService.delete_document(db, document_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")

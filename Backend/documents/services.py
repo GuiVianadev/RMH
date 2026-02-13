@@ -76,20 +76,22 @@ class DocumentService:
             raise HTTPException(status_code=400, detail="Arquivo muito grande (máx 10MB)")
 
         file_id = str(uuid.uuid4())
+        file_extension = ALLOWED_TYPES[file.content_type]
+
         upload_result = cloudinary.uploader.upload(
             content,
             public_id=file_id,
-            resource_type="auto",
+            resource_type="image",
             folder="documents",
-            type="upload",
+            format=file_extension
         )
-        
+            
         with DocumentService._upload_transaction(db, upload_result['public_id']):
             document = Document(
                 title=title,
                 description=description,
                 file_path=upload_result['secure_url'],
-                file_type=ALLOWED_TYPES[file.content_type],
+                file_type=file_extension,
                 cloudinary_id=upload_result['public_id']
             )
             
@@ -129,4 +131,21 @@ class DocumentService:
     def get_document(db: Session, document_id: uuid.UUID) -> Document | None:
         """Busca um documento específico pelo ID."""
         return db.scalar(select(Document).where(Document.id == document_id))
+    
+    @staticmethod
+    def delete_document(db: Session, document_id: uuid.UUID) -> bool:
+        """Deletar documento do banco e do Cloudinary"""
+        document = DocumentService.get_document(db, document_id)
+        if not document:
+            return False
+        
+        try:
+            resource_type = "raw" if document.file_type == "pdf" else "image"
+            cloudinary.uploader.destroy(public_id=document.cloudinary_id, resource_type=resource_type, invalidate=True)
+        except Exception as e:
+            print(f"Erro ao deletar do Cloudinary: {e}")
+        
+        db.delete(document)
+        db.commit()
+        return True
     
